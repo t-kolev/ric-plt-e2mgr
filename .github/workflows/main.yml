@@ -11,5 +11,6 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          command: snyk test json
+          command: test 
+          args: json
 
