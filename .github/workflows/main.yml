@@ -1,7 +1,7 @@
 name: Example workflow for Golang using Snyk
 on: push
 jobs:
-  SCA_Scan:
+  security:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
