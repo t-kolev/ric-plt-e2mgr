@@ -11,8 +11,11 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --sarif-file-output=snyk.sarif
-      - name: Upload result to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v2
+          args: json 
+      - name: Upload vulnerability report
+        uses: actions/upload-artifact@master
+        if: always()
         with:
-          sarif_file: snyk.sarif
+          name: snyk_results.json
+          path: ./snyk.json
+          if-no-files-found: warn
