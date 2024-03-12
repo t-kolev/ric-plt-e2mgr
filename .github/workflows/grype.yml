@@ -9,7 +9,7 @@
 # and parameters, see https://github.com/anchore/scan-action. For more
 # information on Anchore's container image scanning tool Grype, see
 # https://github.com/anchore/grype
-name: Grype vulnerability scan
+name: Anchore Grype vulnerability scan
 
 on:
   push:
@@ -19,7 +19,7 @@ permissions:
   contents: read
 
 jobs:
-  Anchore-Scan:
+  Anchore-Build-Scan:
     permissions:
       contents: read # for actions/checkout to fetch code
       security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
@@ -28,21 +28,36 @@ jobs:
     steps:
     - name: Check out the code
       uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag localbuild/testimage:latest
-    - name: Run the Anchore Grype scan action
+      
+    - name: Running a scan with an json file as an output
       uses: anchore/scan-action@d5aa5b6cb9414b0c7771438046ff5bcfa2854ed7
       id: scan
       with:
-        image: "localbuild/testimage:latest"
         fail-build: true
         severity-cutoff: critical
         output-format: json
-    - name: Upload vulnerability report
+        
+    - name: Running a scan with an sarif file as an output
+      uses: anchore/scan-action@d5aa5b6cb9414b0c7771438046ff5bcfa2854ed7
+      id: scan2
+      with:
+        fail-build: true
+        severity-cutoff: critical
+        output-format: sarif
+        
+    - name: Save the json file vulnerability report
       uses: actions/upload-artifact@master
       if: always()
       with:
         name: results.json
         path: ./results.json
         if-no-files-found: warn
-
+        
+    - name: Upload vulnerability report to github security scanning
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: ${{ steps.scan2.outputs.sarif }}  
+      
+      
+      
+    
